@@ -1,0 +1,41 @@
+# Pre-commit configuration for Go project
+
+default_language_version:
+  python: python3
+
+repos:
+  # Standard pre-commit hooks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-json
+      - id: check-toml
+      - id: check-merge-conflict
+
+  # Go-specific hooks using system tools
+  - repo: local
+    hooks:
+      - id: go-fmt
+        name: Format Go code
+        entry: gofmt
+        language: system
+        args: [-w]
+        files: \.go$
+
+      - id: go-vet
+        name: Go vet
+        entry: go vet
+        language: system
+        args: [./...]
+        files: \.go$
+        pass_filenames: false
+
+      - id: go-mod-tidy
+        name: Tidy Go modules
+        entry: go mod tidy
+        language: system
+        files: ^go\.(mod|sum)$
+        pass_filenames: false
