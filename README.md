@@ -24,14 +24,53 @@ A simple CLI application built with Go, demonstrating:
 
 ## Development Setup
 
-### Prerequisites
+### Option 1: Using Nix (Recommended)
+
+The easiest way to get started is with Nix, which provides a complete, reproducible development environment:
+
+1. **Install Nix** (if not already installed):
+   ```bash
+   curl -L https://nixos.org/nix/install | sh
+   # Enable flakes
+   echo "experimental-features = nix-command flakes" >> ~/.config/nix/nix.conf
+   ```
+
+2. **Clone and enter the project**:
+   ```bash
+   git clone <repository-url>
+   cd go-cli-test
+   ```
+
+3. **Enter the development environment**:
+   ```bash
+   nix develop
+   # This automatically provides Go, pre-commit, and all development tools
+   ```
+
+4. **Build and run**:
+   ```bash
+   # Build with Nix
+   nix build
+
+   # Run directly
+   nix run
+
+   # Or run with arguments
+   nix run . -- greet Alice --uppercase
+   ```
+
+### Option 2: Traditional Setup
+
+If you prefer not to use Nix:
+
+#### Prerequisites
 
 - Go 1.22 or later
 - pre-commit (optional, for code quality hooks)
 - python3 (for pre-commit)
 
 
-### Getting Started
+#### Getting Started
 
 1. Clone and enter the project:
    ```bash

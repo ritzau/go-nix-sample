@@ -126,4 +126,36 @@ help:
 	@echo "  install-hooks  Install pre-commit hooks"
 	@echo "  demo           Build and run demo commands"
 	@echo "  check-env      Check development environment"
+	@echo ""
+	@echo "Nix targets:"
+	@echo "  nix-build      Build with Nix"
+	@echo "  nix-run        Run with Nix"
+	@echo "  nix-shell      Enter Nix development shell"
+	@echo "  nix-update-hash Update vendorHash in flake.nix"
 	@echo "  help           Show this help"
+
+# Nix-specific targets
+
+# Build with Nix
+.PHONY: nix-build
+nix-build:
+	nix build
+
+# Run with Nix
+.PHONY: nix-run
+nix-run:
+	nix run
+
+# Enter Nix development shell
+.PHONY: nix-shell
+nix-shell:
+	nix develop
+
+# Update vendorHash in flake.nix (run this when dependencies change)
+.PHONY: nix-update-hash
+nix-update-hash:
+	@echo "Building to get the correct vendorHash..."
+	@nix build 2>&1 | grep "got:" | sed 's/.*got: //' | sed 's/flake.nix://' | \
+	xargs -I {} sed -i.bak 's/vendorHash = ".*";/vendorHash = "{}";/' flake.nix && \
+	rm -f flake.nix.bak && \
+	echo "Updated vendorHash in flake.nix"

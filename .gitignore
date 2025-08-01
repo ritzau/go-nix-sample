@@ -22,6 +22,17 @@ coverage.html
 # Dependency directories
 vendor/
 
+# Nix-specific ignores
+result
+result-*
+
+# Go development cache directories (managed by Nix shell)
+.go/
+.cache/
+
+# Direnv
+.direnv/
+
 # IDE specific files (keep .vscode/ for workspace config)
 .idea/
 *.swp
