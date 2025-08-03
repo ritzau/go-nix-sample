@@ -30,14 +30,14 @@ lint:
 # Format code
 .PHONY: fmt
 fmt:
-	gofmt -w .
+	git ls-files '*.go' | xargs gofmt -w
 
 # Run all checks (same as pre-commit hooks, useful for CI)
 .PHONY: check
 check:
 	@echo "=== Running all checks ==="
 	@echo "1. Formatting Go code..."
-	gofmt -w .
+	git ls-files '*.go' | xargs gofmt -w
 	@echo "2. Running go vet..."
 	go vet ./...
 	@echo "3. Tidying Go modules..."
@@ -49,7 +49,7 @@ check:
 check-ci:
 	@echo "=== Running CI checks ==="
 	@echo "1. Checking Go formatting..."
-	@test -z "$$(gofmt -l .)" || (echo "Go files not formatted. Run 'make fmt'" && exit 1)
+	@test -z "$$(git ls-files '*.go' | xargs gofmt -l)" || (echo "Go files not formatted. Run 'make fmt'" && exit 1)
 	@echo "2. Running go vet..."
 	go vet ./...
 	@echo "3. Checking Go modules..."
@@ -129,9 +129,8 @@ help:
 	@echo ""
 	@echo "Nix targets:"
 	@echo "  nix-build      Build with Nix"
-	@echo "  nix-run        Run with Nix"
 	@echo "  nix-shell      Enter Nix development shell"
-	@echo "  nix-update-hash Update vendorHash in flake.nix"
+	@echo "  nix-update-hash Update vendorHash in go-cli-test.nix"
 	@echo "  help           Show this help"
 
 # Nix-specific targets
@@ -139,23 +138,18 @@ help:
 # Build with Nix
 .PHONY: nix-build
 nix-build:
-	nix build
-
-# Run with Nix
-.PHONY: nix-run
-nix-run:
-	nix run
+	nix-build
 
 # Enter Nix development shell
 .PHONY: nix-shell
 nix-shell:
-	nix develop
+	nix-shell
 
-# Update vendorHash in flake.nix (run this when dependencies change)
+# Update vendorHash in go-cli-test.nix (run this when dependencies change)
 .PHONY: nix-update-hash
 nix-update-hash:
 	@echo "Building to get the correct vendorHash..."
-	@nix build 2>&1 | grep "got:" | sed 's/.*got: //' | sed 's/flake.nix://' | \
-	xargs -I {} sed -i.bak 's/vendorHash = ".*";/vendorHash = "{}";/' flake.nix && \
-	rm -f flake.nix.bak && \
-	echo "Updated vendorHash in flake.nix"
+	@nix-build 2>&1 | grep "got:" | sed 's/.*got: //' | \
+	xargs -I {} sed -i.bak 's/vendorHash = ".*";/vendorHash = "{}";/' go-cli-test.nix && \
+	rm -f go-cli-test.nix.bak && \
+	echo "Updated vendorHash in go-cli-test.nix"
