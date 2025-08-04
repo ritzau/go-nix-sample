@@ -102,6 +102,38 @@ nix-build:
 nix-shell:
     nix shell
 
+# Build pure Nix container (no Docker daemon required)
+nix-container:
+    @echo "🔨 Building pure Nix container..."
+    nix build .#container
+    @echo "✅ Nix container built: result"
+    @echo "📦 To load into Docker:"
+    @echo "  docker load < result"
+
+# Build Nix layered container with better caching
+nix-container-layered:
+    @echo "🔨 Building Nix layered container..."
+    nix build .#container-layered
+    @echo "✅ Nix layered container built: result"
+    @echo "📦 To load into Docker:"
+    @echo "  docker load < result"
+
+# Load Nix container into Docker and test
+nix-docker-test: nix-container
+    @echo "📦 Loading Nix container into Docker..."
+    docker load < result
+    @echo "🧪 Testing Nix-built container..."
+    @echo "1. Help command:"
+    docker run --rm go-cli-test-nix:latest --help
+    @echo ""
+    @echo "2. Greet command:"
+    docker run --rm go-cli-test-nix:latest greet "Nix" --uppercase
+    @echo ""
+    @echo "3. Math command:"
+    docker run --rm go-cli-test-nix:latest math multiply 6 7
+    @echo ""
+    @echo "✅ Nix container tests passed!"
+
 # Docker targets
 
 # Build Docker image (static binary with scratch base - 3.79MB)

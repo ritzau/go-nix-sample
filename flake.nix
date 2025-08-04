@@ -75,6 +75,28 @@
               "-s" "-w" "-extldflags '-static'"
             ];
           });
+
+          # Pure Nix container - ultra minimal
+          container = pkgs.dockerTools.buildImage {
+            name = "go-cli-test-nix";
+            tag = "latest";
+            contents = [ self.packages.${system}.static ];
+            config = {
+              Cmd = [ "/bin/go-cli-test" ];
+              WorkingDir = "/";
+            };
+          };
+
+          # Layered container with better caching
+          container-layered = pkgs.dockerTools.buildLayeredImage {
+            name = "go-cli-test-nix-layered";
+            tag = "latest";
+            contents = [ self.packages.${system}.static ];
+            config = {
+              Cmd = [ "/bin/go-cli-test" ];
+              WorkingDir = "/";
+            };
+          };
         });
 
       # Checks for each system
