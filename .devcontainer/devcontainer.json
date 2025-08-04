@@ -1,0 +1,19 @@
+
+{
+	"name": "Go Nix Test",
+	"image": "ubuntu:24.04",
+	"features": {
+		"ghcr.io/devcontainers/features/nix:1": {
+			"extraNixConfig": "experimental-features = nix-command flakes"
+		}
+	},
+	"postCreateCommand": "apt-get update && apt-get install -y direnv && direnv allow .",
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"golang.go",
+				"mkhl.direnv"
+			]
+		}
+	}
+}
