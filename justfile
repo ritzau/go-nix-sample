@@ -101,3 +101,51 @@ nix-build:
 # Enter Nix development shell
 nix-shell:
     nix shell
+
+# Docker targets
+
+# Build Docker image (static binary with scratch base - 3.79MB)
+docker-build:
+    @echo "🐳 Building ultra-minimal Docker image..."
+    docker build -t go-cli-test .
+    @echo "✅ Docker image built successfully!"
+    @echo "📏 Image size:"
+    @docker images go-cli-test:latest --format "table {{{{.Repository}}}}\t{{{{.Tag}}}}\t{{{{.Size}}}}"
+    @echo ""
+    @echo "🚀 To run the container:"
+    @echo "  docker run --rm go-cli-test"
+    @echo "  docker run --rm go-cli-test greet World"
+    @echo "  docker run --rm go-cli-test math add 5 3"
+
+# Build Docker image with custom tag
+docker-build-tag TAG:
+    @echo "🐳 Building Docker image with tag: {{TAG}}..."
+    docker build -t {{TAG}} .
+    @echo "✅ Docker image built successfully as {{TAG}}"
+
+# Test Docker container with various commands
+docker-test: docker-build
+    @echo "🧪 Testing Docker container..."
+    @echo "1. Help command:"
+    docker run --rm go-cli-test --help
+    @echo ""
+    @echo "2. Greet command:"
+    docker run --rm go-cli-test greet "Docker" --uppercase
+    @echo ""
+    @echo "3. Math command:"
+    docker run --rm go-cli-test math add 42 58
+    @echo ""
+    @echo "✅ All Docker tests passed!"
+
+# Clean Docker images
+docker-clean:
+    @echo "🧹 Cleaning Docker images..."
+    docker rmi go-cli-test:latest || true
+    docker rmi go-cli-test-static:latest || true
+    docker rmi go-cli-test-nix:latest || true
+    @echo "✅ Docker images cleaned"
+
+# Show Docker image sizes for comparison
+docker-sizes:
+    @echo "📊 Docker image size comparison:"
+    @docker images | grep go-cli-test | sort -k1,1 | awk '{printf "  %-25s %-10s %s\n", $1, $2, $7}'

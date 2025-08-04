@@ -7,6 +7,7 @@ A simple CLI application built with Go, demonstrating:
 - ✅ Comprehensive unit testing
 - 📦 Modular package structure
 - ❄️ Modern, reproducible Nix builds with Flakes
+- 🐳 Ultra-minimal Docker containers (3.79MB!)
 
 ## Features
 
@@ -176,6 +177,34 @@ just build
 # Run directly with go
 go run main.go greet Alice
 ```
+
+## Docker Deployment
+
+The project includes Docker support with an ultra-minimal static binary approach:
+
+### Quick Start
+```bash
+# Build the optimized container (3.79MB!)
+docker build -t go-cli-test .
+
+# Run the container
+docker run --rm go-cli-test greet "Docker World"
+docker run --rm go-cli-test math add 42 58
+```
+
+### Docker Features
+- **Ultra-minimal size**: Only **3.79MB** final image
+- **Maximum security**: Built on `scratch` with static binary (no shell, no packages)
+- **Nix-built**: Uses Nix for reproducible, static binary compilation
+- **Production-ready**: No runtime dependencies, minimal attack surface
+
+### Using Docker Compose
+```bash
+# Build and run with docker-compose
+docker-compose run --rm go-cli-test greet "Compose"
+```
+
+For detailed Docker documentation, see [`DOCKER.md`](./DOCKER.md).
 
 ## Testing
 

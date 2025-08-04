@@ -69,6 +69,12 @@
         in
         {
           default = pkgs.buildGoModule (goModule pkgs);
+          static = pkgs.buildGoModule ((goModule pkgs) // {
+            CGO_ENABLED = "0";
+            ldflags = [
+              "-s" "-w" "-extldflags '-static'"
+            ];
+          });
         });
 
       # Checks for each system
