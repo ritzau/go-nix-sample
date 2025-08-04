@@ -102,25 +102,26 @@ nix-build:
 nix-shell:
     nix shell
 
-# Build pure Nix container (no Docker daemon required)
+# Build pure Nix container (works best on Linux, limited on macOS)
 nix-container:
     @echo "🔨 Building pure Nix container..."
+    @echo "💡 Note: Cross-compilation macOS→Linux not supported by Nix"
+    @echo "🐧 This works great in Linux environments (Ubuntu, CI, etc.)"
     nix build .#container
     @echo "✅ Nix container built: result"
-    @echo "📦 To load into Docker:"
-    @echo "  docker load < result"
+    @echo "📦 This creates a Docker-compatible tarball"
 
 # Build Nix layered container with better caching
 nix-container-layered:
     @echo "🔨 Building Nix layered container..."
+    @echo "🐧 Works best in Linux environments"
     nix build .#container-layered
     @echo "✅ Nix layered container built: result"
-    @echo "📦 To load into Docker:"
-    @echo "  docker load < result"
 
 # Load Nix container into Docker and test
 nix-docker-test: nix-container
     @echo "📦 Loading Nix container into Docker..."
+    @echo "🐧 Note: Only works properly in Linux environments"
     docker load < result
     @echo "🧪 Testing Nix-built container..."
     @echo "1. Help command:"
@@ -181,3 +182,23 @@ docker-clean:
 docker-sizes:
     @echo "📊 Docker image size comparison:"
     @docker images | grep go-cli-test | sort -k1,1 | awk '{printf "  %-25s %-10s %s\n", $1, $2, $7}'
+
+# Show all available container build options
+container-help:
+    @echo "🐳 Container Build Options:"
+    @echo ""
+    @echo "📦 Production (Linux containers):"
+    @echo "  just docker-build      → 3.79MB ultra-minimal (Dockerfile + Nix + scratch)"
+    @echo "  just docker-test       → Build + comprehensive testing"
+    @echo ""
+    @echo "🔨 Development (Nix-native):"
+    @echo "  just nix-container     → Pure Nix container (Linux environments)"
+    @echo "  just nix-docker-test   → Nix container + Docker testing"
+    @echo ""
+    @echo "📏 Size comparison:"
+    @echo "  just docker-sizes      → Compare all built images"
+    @echo ""
+    @echo "💡 Recommendation:"
+    @echo "  • macOS development: Use 'just docker-build' for production containers"
+    @echo "  • Linux development: Use either approach, Nix containers are faster"
+    @echo "  • CI/Production: Use 'just docker-build' for maximum compatibility"

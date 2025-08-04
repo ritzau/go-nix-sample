@@ -70,20 +70,27 @@
         {
           default = pkgs.buildGoModule (goModule pkgs);
           static = pkgs.buildGoModule ((goModule pkgs) // {
-            CGO_ENABLED = "0";
+            env.CGO_ENABLED = "0";
             ldflags = [
               "-s" "-w" "-extldflags '-static'"
             ];
           });
 
-          # Pure Nix container - ultra minimal
+          # Pure Nix container - built for current system
           container = pkgs.dockerTools.buildImage {
             name = "go-cli-test-nix";
             tag = "latest";
-            contents = [ self.packages.${system}.static ];
+            copyToRoot = pkgs.buildEnv {
+              name = "image-root";
+              paths = [
+                self.packages.${system}.static
+              ];
+              pathsToLink = [ "/bin" ];
+            };
             config = {
-              Cmd = [ "/bin/go-cli-test" ];
+              Entrypoint = [ "/bin/go-cli-test" ];
               WorkingDir = "/";
+              Env = [ "PATH=/bin" ];
             };
           };
 
@@ -91,9 +98,15 @@
           container-layered = pkgs.dockerTools.buildLayeredImage {
             name = "go-cli-test-nix-layered";
             tag = "latest";
-            contents = [ self.packages.${system}.static ];
+            copyToRoot = pkgs.buildEnv {
+              name = "image-root";
+              paths = [
+                self.packages.${system}.static
+              ];
+              pathsToLink = [ "/bin" ];
+            };
             config = {
-              Cmd = [ "/bin/go-cli-test" ];
+              Entrypoint = [ "/bin/go-cli-test" ];
               WorkingDir = "/";
             };
           };
