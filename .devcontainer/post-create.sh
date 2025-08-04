@@ -5,9 +5,6 @@ set -e
 
 echo "Running post-create script..."
 
-# Update package lists and install direnv
-sudo apt-get update && sudo apt-get install -y direnv
-
 # Allow direnv to load the environment for the workspace
 direnv allow .
 
