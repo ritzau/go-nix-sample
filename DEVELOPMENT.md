@@ -45,24 +45,29 @@ To skip pre-commit hooks for a specific commit:
 git commit --no-verify -m "commit message"
 ```
 
-## Make Target Details
+## Just Command Details
 
-### Standard Targets
-- `make check` - Runs all checks and fixes issues automatically
-- `make check-ci` - Runs all checks but fails if issues are found (for CI)
-- `make install-hooks` - Installs pre-commit hooks
-- `make help` - Shows all available targets
+### Standard Commands
+- `just check` - Runs all checks and fixes issues automatically
+- `just check-ci` - Runs all checks but fails if issues are found (for CI)
+- `just install-hooks` - Installs pre-commit hooks
+- `just --list` - Shows all available commands
 
 ### Updating vendorHash
 
 When Go dependencies in `go.mod` or `go.sum` change, the `vendorHash` in `flake.nix` must be updated. Nix will tell you the correct hash if the current one is wrong when you run `nix build`.
+
+To update it automatically, run:
+```bash
+just nix-update-hash
+```
 
 ## Testing Guidelines
 
 - All packages should have tests.
 - Aim for good test coverage.
 - Run tests before committing: `nix flake check`
-- Generate a coverage report: `make coverage-report`
+- Generate a coverage report: `just coverage-report`
 
 ## Code Style
 
@@ -102,11 +107,6 @@ When Go dependencies in `go.mod` or `go.sum` change, the `vendorHash` in `flake.
    # Or with direnv
    direnv allow
    ```
-   nix develop
-
-   # Or with direnv (automatic)
-   direnv allow
-   ```
 
 ### Working with Dependencies
 
@@ -120,7 +120,7 @@ When you add or update Go dependencies:
 
 2. Update the Nix vendorHash:
    ```bash
-   make nix-update-hash
+   just nix-update-hash
    ```
 
 ### Building and Running
@@ -136,7 +136,7 @@ nix run
 nix run . -- greet --help
 
 # Traditional Go build (in nix shell)
-make build
+just build
 ./go-cli-test
 ```
 

@@ -89,13 +89,16 @@ The `flake.nix` file defines all the outputs of the project:
 3. **Enter the development environment**:
    ```bash
    nix-shell
+   3. **Enter the development environment**:
+   ```bash
+   nix develop
    # This automatically provides Go, pre-commit, and all development tools
    ```
 
 4. **Build and run**:
    ```bash
    # Build with Nix
-   nix-build
+   nix build
 
    # Run the built binary
    ./result/bin/go-cli-test greet Alice --uppercase
@@ -109,13 +112,12 @@ The `flake.nix` file defines all the outputs of the project:
 To update the pinned nixpkgs version:
 
 1. Find a new commit from: https://github.com/NixOS/nixpkgs/commits/nixos-unstable
-2. Update the `rev` in `nixpkgs.nix`
-3. Get the new hash:
+2. Update the `url` in `flake.nix` for `nixpkgs`.
+3. Update the flake lock file:
    ```bash
-   nix-prefetch-url --unpack https://github.com/NixOS/nixpkgs/archive/NEW_REV.tar.gz
+   nix flake update
    ```
-4. Update the `sha256` in `nixpkgs.nix`
-5. Test: `nix-build && nix-shell`
+5. Test: `nix build && nix develop`
 
 ## Alternative: Traditional Setup
 
@@ -123,7 +125,8 @@ If you prefer not to use Nix:
 
 ### Prerequisites
 
-- Go 1.22 or later
+- Go 1.24 or later
+- just
 - pre-commit (optional, for code quality hooks)
 - python3 (for pre-commit)
 
@@ -137,7 +140,7 @@ If you prefer not to use Nix:
 
 2. Install dependencies:
    ```bash
-   go mod download
+   just deps
    ```
 
 3. (Optional) Set up pre-commit hooks:
@@ -147,7 +150,7 @@ If you prefer not to use Nix:
    # Or: brew install pre-commit
 
    # Setup hooks
-   make install-hooks
+   just install-hooks
    ```
 
 ## Building and Running
@@ -155,20 +158,20 @@ If you prefer not to use Nix:
 ### With Nix (Recommended)
 ```bash
 # Build with Nix
-nix-build
+nix build
 
 # Run the built binary
 ./result/bin/go-cli-test greet Alice
 
 # Or enter development environment first
-nix-shell
-make build && ./go-cli-test greet Alice
+nix develop
+just build && ./go-cli-test greet Alice
 ```
 
 ### Traditional Development
 ```bash
 # Build the application
-make build
+just build
 
 # Run directly with go
 go run main.go greet Alice
@@ -177,10 +180,10 @@ go run main.go greet Alice
 ## Testing
 
 ```bash
-# In development environment (nix-shell or with Go installed)
-make test                # Run all tests
-make test-coverage      # Run tests with coverage
-make coverage-report    # Generate HTML coverage report
+# In development environment (nix develop or with Go installed)
+just test                # Run all tests
+just test-coverage      # Run tests with coverage
+just coverage-report    # Generate HTML coverage report
 ```
 
 ## Code Quality
@@ -193,17 +196,14 @@ The project uses pre-commit hooks for code quality:
 
 Hooks run automatically on commit, or manually:
 ```bash
-make pre-commit
+just pre-commit
 ```
 
 ## Project Structure
 
 ```
 go-cli-test/
-├── nixpkgs.nix             # Pinned nixpkgs for reproducibility
-├── default.nix             # Main Nix entry point
-├── go-cli-test.nix         # Package definition
-├── shell.nix               # Development environment
+├── flake.nix               # Main Nix entry point for builds, shells, and checks
 ├── .envrc                  # direnv integration
 ├── cmd/                    # CLI commands
 ├── pkg/                    # Reusable packages
@@ -212,7 +212,7 @@ go-cli-test/
 ├── go.sum                  # Go dependency checksums
 ├── .gitignore              # Git ignore rules
 ├── .pre-commit-config.yaml # Pre-commit hooks
-├── Makefile                # Build automation
+├── justfile                # Build automation
 ├── README.md               # This file
 └── DEVELOPMENT.md          # Development setup guide
 ```
@@ -221,13 +221,13 @@ go-cli-test/
 
 ```bash
 # Build and run with Nix
-nix-build && ./result/bin/go-cli-test greet
+nix build && ./result/bin/go-cli-test greet
 
 # Basic greeting
 ./result/bin/go-cli-test greet
 
 # Custom greeting
-./result/bin/go-cli-test greet "John Doe" --prefix "Welcome"
+./result/bin/go-cli-test "John Doe" --prefix "Welcome"
 
 # Math operations
 ./result/bin/go-cli-test math add 10 20 30
@@ -238,31 +238,31 @@ nix-build && ./result/bin/go-cli-test greet
 
 ## Contributing
 
-1. Enter development environment: `nix-shell` (or install Go tools manually)
+1. Enter development environment: `nix develop` (or install Go tools manually)
 2. Make your changes
-3. Run tests: `make test`
-4. Run code quality checks: `make lint`
+3. Run tests: `just test`
+4. Run code quality checks: `just lint`
 5. Commit (pre-commit hooks will run automatically)
 
-## Available Make Targets
+## Available Just Commands
 
-Run `make help` to see all available targets.
+Run `just --list` to see all available commands.
 
-Key targets:
-- `make build` - Build the application
-- `make test` - Run tests
-- `make fmt` - Format code
-- `make lint` - Run linter
+Key commands:
+- `just build` - Build the application
+- `just test` - Run tests
+- `just fmt` - Format code
+- `just lint` - Run linter
 
-## Why Traditional Nix?
+## Why Flakes?
 
-This project uses traditional Nix instead of flakes to demonstrate:
-- **Fundamental Nix concepts** without experimental features
-- **Modular package structure** using `callPackage`
-- **Reproducible dependency pinning** with `nixpkgs.nix`
-- **Consistent environments** between build and development
+This project uses Nix Flakes to demonstrate:
+- **Modern Nix features** for better reproducibility and usability.
+- **Self-contained package definitions** within the `flake.nix`.
+- **Reproducible dependency pinning** with `flake.lock`.
+- **Consistent environments** between build and development.
 
-Perfect for learning Nix before moving to more advanced features!
+Perfect for learning modern Nix practices!
 
 ## License
 

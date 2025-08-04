@@ -49,11 +49,16 @@
         {
           default = pkgs.mkShell {
             buildInputs = with pkgs; [
+              delve
               go
               gopls
               go-tools
               gotools
-              delve
+              just
+              less
+              pre-commit
+              ripgrep
+              zsh
             ];
           };
         });
