@@ -6,7 +6,7 @@ A simple CLI application built with Go, demonstrating:
 - 🔧 Pre-commit hooks for code quality
 - ✅ Comprehensive unit testing
 - 📦 Modular package structure
-- 🏗️ Traditional Nix packaging and development environment
+- ❄️ Modern, reproducible Nix builds with Flakes
 
 ## Features
 
@@ -23,80 +23,61 @@ A simple CLI application built with Go, demonstrating:
   - `go-cli-test math divide 10 2` - Divide numbers
   - `go-cli-test math sqrt 16` - Square root
 
-## Nix Development Environment
+## Nix Development Environment with Flakes
 
-This project uses **traditional Nix** (non-flake) for reproducible builds and development environments.
+This project uses **Nix Flakes** for reproducible builds and development environments.
 
 ### Project Structure
 
 ```
-├── default.nix       # Main entry point - builds the package
-├── go-cli-test.nix   # Package definition with dependencies
-├── shell.nix         # Development environment
-├── nixpkgs.nix       # Pinned nixpkgs for reproducibility
-└── .envrc           # direnv integration
+├── flake.nix       # Main entry point for builds, shells, and checks
+└── .envrc          # direnv integration for flakes
 ```
 
 ### Quick Start
 
 ```bash
 # Build the application
-nix-build
+nix build
 
 # Run the built binary
 ./result/bin/go-cli-test --help
 
 # Enter development environment
-nix-shell
+nix develop
 
 # Or use direnv (if installed)
 direnv allow
+
+# Run tests
+nix flake check
 ```
 
 ### Key Benefits
 
-- **Reproducible builds**: Same result on any machine with Nix
-- **Pinned dependencies**: `nixpkgs.nix` ensures consistent package versions
-- **Isolated environment**: No interference with system packages
-- **Consistent shell and build**: Development uses same Go version as build
+- **Reproducible builds**: Same result on any machine with Nix.
+- **Pinned dependencies**: The `flake.lock` file ensures consistent package versions.
+- **Isolated environment**: No interference with system packages.
+- **Hermetic evaluation**: Flakes prevent impurities, ensuring builds are self-contained.
 
-## Traditional Nix Approach
+## Flake-based Nix Approach
 
-### Files Explained
+### `flake.nix` Explained
 
-#### `nixpkgs.nix`
-Pins nixpkgs to a specific commit for reproducibility:
-```nix
-# Pin to specific commit - never changes
-rev = "057f9aecfb71c4437d2b27d3323df7f93c010b7e";
-```
+The `flake.nix` file defines all the outputs of the project:
 
-#### `go-cli-test.nix`
-Package definition with explicit dependencies:
-```nix
-{ lib, buildGoModule, fetchFromGitHub }:
-# Package definition here
-```
-
-#### `default.nix`
-Entry point using `callPackage`:
-```nix
-{ pkgs ? import ./nixpkgs.nix }:
-pkgs.callPackage ./go-cli-test.nix { }
-```
-
-#### `shell.nix`
-Development environment that inherits build dependencies:
-```nix
-inputsFrom = [ go-cli-test ];  # Same deps as build
-buildInputs = [ /* dev tools */ ];
-```
+- **`inputs`**: Pins the version of `nixpkgs` for reproducibility.
+- **`outputs`**: A function that produces the project's derivations.
+  - **`packages`**: Defines how to build the Go application.
+  - **`devShells`**: Defines the development environment with all necessary tools.
+  - **`checks`**: Defines how to run the project's tests.
 
 ### Development Workflow
 
-1. **Install Nix** (if not already installed):
+1. **Install Nix with Flakes enabled** (if not already installed):
    ```bash
    curl -L https://nixos.org/nix/install | sh
+   # Follow instructions to enable flakes
    ```
 
 2. **Clone and enter the project**:

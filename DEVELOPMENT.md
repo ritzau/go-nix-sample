@@ -6,7 +6,7 @@ Development-specific information for contributors to this Go CLI project.
 
 See the main [README.md](README.md) for basic setup instructions.
 
-### Option 1: Using Nix (Recommended)
+### Using Nix (Recommended)
 
 If you have Nix installed with flakes enabled:
 
@@ -15,18 +15,17 @@ If you have Nix installed with flakes enabled:
 nix develop
 
 # Or use direnv for automatic environment loading
-direnv allow  # (if .envrc exists)
+direnv allow
 
 # Build with Nix
 nix build
 
-# Run with Nix
-nix run
+# Run the built binary
+./result/bin/go-cli-test --help
+
+# Run tests
+nix flake check
 ```
-
-### Option 2: Traditional Go Development
-
-Ensure you have Go 1.21+ installed, then follow the instructions in README.md.
 
 ## Pre-commit Hook Details
 
@@ -54,24 +53,22 @@ git commit --no-verify -m "commit message"
 - `make install-hooks` - Installs pre-commit hooks
 - `make help` - Shows all available targets
 
-### Nix-specific Targets
-- `make nix-build` - Build the project using Nix
-- `make nix-run` - Run the application using Nix
-- `make nix-shell` - Enter the Nix development shell
-- `make nix-update-hash` - Update vendorHash when Go dependencies change
+### Updating vendorHash
+
+When Go dependencies in `go.mod` or `go.sum` change, the `vendorHash` in `flake.nix` must be updated. Nix will tell you the correct hash if the current one is wrong when you run `nix build`.
 
 ## Testing Guidelines
 
-- All packages should have tests
-- Aim for good test coverage
-- Run tests before committing: `make test`
-- Generate coverage report: `make coverage-report`
+- All packages should have tests.
+- Aim for good test coverage.
+- Run tests before committing: `nix flake check`
+- Generate a coverage report: `make coverage-report`
 
 ## Code Style
 
-- Use `gofmt` for formatting (automated by pre-commit)
-- Follow standard Go conventions
-- Add comments for exported functions and types
+- Use `gofmt` for formatting (automated by pre-commit).
+- Follow standard Go conventions.
+- Add comments for exported functions and types.
 
 ## Nix Development Environment
 
@@ -83,7 +80,9 @@ git commit --no-verify -m "commit message"
    curl -L https://nixos.org/nix/install | sh
 
    # Enable flakes (required)
-   echo "experimental-features = nix-command flakes" >> ~/.config/nix/nix.conf
+   # This might require adding it to ~/.config/nix/nix.conf or /etc/nix/nix.conf
+   # depending on your setup.
+   # experimental-features = nix-command flakes
    ```
 
 2. **Enable direnv** (optional but recommended):
@@ -98,6 +97,11 @@ git commit --no-verify -m "commit message"
 3. **Enter the development environment**:
    ```bash
    # Manual activation
+   nix develop
+
+   # Or with direnv
+   direnv allow
+   ```
    nix develop
 
    # Or with direnv (automatic)
